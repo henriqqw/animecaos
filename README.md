@@ -3,7 +3,7 @@
 
 # animecaos
 
-**Agregador de streaming desktop minimalista, rápido e autônomo para animes.**
+**Hub de streaming desktop minimalista, rápido e autônomo para animes.**
 
 Centralize sua experiência de assistir anime em uma única aplicação, sem anúncios intrusivos e com busca inteligente entre múltiplas fontes.
 
