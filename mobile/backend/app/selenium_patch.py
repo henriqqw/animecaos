@@ -7,6 +7,7 @@ Alvo: todos os módulos em animecaos.plugins que criam instâncias Selenium Fire
 
 from __future__ import annotations
 
+import importlib
 import sys
 
 from selenium import webdriver
@@ -52,49 +53,70 @@ def _patched_make_driver() -> webdriver.Firefox:
         ) from exc
 
 
+# ---------------------------------------------------------------------------
+# Nomes dos módulos de plugins que precisam de patch
+# ---------------------------------------------------------------------------
+_MODULES_WITH_MAKE_DRIVER = (
+    "animecaos.plugins.animesvision",
+    "animecaos.plugins.betteranime",
+    "animecaos.plugins.hinatasoul",
+)
+
+_MODULES_WITH_INLINE_DRIVER = (
+    "animecaos.plugins.animesonlinecc",
+    "animecaos.plugins.animefire",
+)
+
+_ALL_PLUGIN_MODULES = (
+    "animecaos.plugins.utils",
+    *_MODULES_WITH_MAKE_DRIVER,
+    *_MODULES_WITH_INLINE_DRIVER,
+)
+
+
+def _ensure_imported(mod_name: str):
+    """Importa o módulo se ainda não estiver em sys.modules."""
+    if mod_name not in sys.modules:
+        try:
+            importlib.import_module(mod_name)
+        except Exception:
+            pass  # Plugin pode não existir; ignorar.
+    return sys.modules.get(mod_name)
+
+
 def apply() -> None:
-    """Aplica os patches em todos os módulos de plugins já importados."""
+    """Importa (se necessário) e aplica patches nos módulos de plugins."""
 
-    # Módulos com _make_driver() próprio
-    _MODULES_WITH_MAKE_DRIVER = (
-        "animecaos.plugins.animesvision",
-        "animecaos.plugins.betteranime",
-        "animecaos.plugins.hinatasoul",
-    )
+    # 1. Garantir que todos os módulos estejam importados
+    for mod_name in _ALL_PLUGIN_MODULES:
+        _ensure_imported(mod_name)
 
-    # Módulos que usam build_firefox_options / is_firefox_installed_as_snap inline
-    _MODULES_WITH_INLINE_DRIVER = (
-        "animecaos.plugins.animesonlinecc",
-        "animecaos.plugins.animefire",
-    )
-
-    # Patch no utils central
+    # 2. Patch no utils central
     utils_mod = sys.modules.get("animecaos.plugins.utils")
     if utils_mod is not None:
-        utils_mod.build_firefox_options = _patched_build_firefox_options  # type: ignore[attr-defined]
-        utils_mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap  # type: ignore[attr-defined]
+        utils_mod.build_firefox_options = _patched_build_firefox_options
+        utils_mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap
 
-    # Patch nos módulos que têm _make_driver()
+    # 3. Patch nos módulos que têm _make_driver()
     for mod_name in _MODULES_WITH_MAKE_DRIVER:
         mod = sys.modules.get(mod_name)
         if mod is None:
             continue
-        mod._make_driver = _patched_make_driver  # type: ignore[attr-defined]
-        # Também sobrescrever referências locais importadas do utils
+        mod._make_driver = _patched_make_driver
         if hasattr(mod, "build_firefox_options"):
-            mod.build_firefox_options = _patched_build_firefox_options  # type: ignore[attr-defined]
+            mod.build_firefox_options = _patched_build_firefox_options
         if hasattr(mod, "is_firefox_installed_as_snap"):
-            mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap  # type: ignore[attr-defined]
+            mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap
 
-    # Patch nos módulos que criam driver inline (animesonlinecc, animefire)
+    # 4. Patch nos módulos que criam driver inline (animesonlinecc, animefire)
     for mod_name in _MODULES_WITH_INLINE_DRIVER:
         mod = sys.modules.get(mod_name)
         if mod is None:
             continue
         if hasattr(mod, "build_firefox_options"):
-            mod.build_firefox_options = _patched_build_firefox_options  # type: ignore[attr-defined]
+            mod.build_firefox_options = _patched_build_firefox_options
         if hasattr(mod, "is_firefox_installed_as_snap"):
-            mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap  # type: ignore[attr-defined]
+            mod.is_firefox_installed_as_snap = _patched_is_firefox_installed_as_snap
 
     print(
         f"Info: selenium_patch aplicado — "
