@@ -23,7 +23,7 @@ object ApiClient {
     }
 
     // Emulator-first order: 10.0.2.2 (standard emulator), 10.0.3.2 (Genymotion),
-    // then localhost variants, then common LAN IPs.
+    // then localhost variants. These are fallbacks for local development.
     private val fallbackBaseUrls = listOf(
         "http://10.0.2.2:8000/",
         "http://10.0.3.2:8000/",
@@ -32,12 +32,12 @@ object ApiClient {
     )
 
     private val baseCandidates: List<HttpUrl> = buildList {
-        // Emulator addresses first (most likely to work in dev).
+        // Production VPS URL first (configured in build.gradle.kts).
+        parseBaseUrl(BuildConfig.API_BASE_URL)?.let(::add)
+        // Emulator/local fallbacks for development.
         fallbackBaseUrls.forEach { fallback ->
             parseBaseUrl(fallback)?.let(::add)
         }
-        // User-configured URL last (may be LAN IP unreachable from emulator).
-        parseBaseUrl(BuildConfig.API_BASE_URL)?.let(::add)
     }.distinctBy { "${it.scheme}://${it.host}:${it.port}" }
 
     private val activeBaseRef = AtomicReference(

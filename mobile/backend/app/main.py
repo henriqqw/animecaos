@@ -25,6 +25,10 @@ from animecaos.services.history_service import HistoryService  # pylint: disable
 from animecaos.services.watchlist_service import WatchlistService  # pylint: disable=wrong-import-position
 from animecaos.core import loader as anime_loader  # pylint: disable=wrong-import-position
 
+# Força plugins desktop a usarem Firefox ESR + geckodriver da VPS.
+from app.selenium_patch import apply as _apply_selenium_patch  # pylint: disable=wrong-import-position
+_apply_selenium_patch()
+
 
 class HealthResponse(BaseModel):
     status: str

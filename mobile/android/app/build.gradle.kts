@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,9 +10,16 @@ android {
     compileSdk = 35
 
     defaultConfig {
+        val props = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            props.load(localPropertiesFile.inputStream())
+        }
+
         val apiBaseUrl = (project.findProperty("apiBaseUrl") as String?)
             ?.trim()
             ?.takeIf { it.isNotEmpty() }
+            ?: props.getProperty("apiBaseUrl")?.trim()?.takeIf { it.isNotEmpty() }
             ?: "http://10.0.2.2:8000/"
 
         applicationId = "com.animecaos.mobile"
@@ -26,8 +35,31 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val props = Properties()
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                props.load(localPropertiesFile.inputStream())
+            }
+
+            val keystorePath = props.getProperty("keystore.path")
+            val keystorePassword = props.getProperty("keystore.password")
+            val keyAliasName = props.getProperty("key.alias")
+            val keyPasswordValue = props.getProperty("key.password")
+
+            if (keystorePath != null && keystorePassword != null && keyAliasName != null && keyPasswordValue != null) {
+                storeFile = file(keystorePath)
+                storePassword = keystorePassword
+                this.keyAlias = keyAliasName
+                this.keyPassword = keyPasswordValue
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
