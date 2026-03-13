@@ -31,9 +31,28 @@ def _patched_animesvision_search_anime(query: str) -> None:
     driver = _make_driver()
     try:
         driver.get(url)
-        time.sleep(3)
+        
+        # Esperar pelo redirect do fingerprinting (URL muda ou título muda)
+        print(f"[AnimesVision] Aguardando fingerprinting redirect...")
+        wait = WebDriverWait(driver, 15)
+        
+        # Estratégia: Esperar até que o título não seja apenas 'animesvision.biz' 
+        # ou que um seletor de resultado apareça
         selector_str = ", ".join(ANIME_SEARCH_SELECTORS)
+        try:
+            wait.until(lambda d: d.title != "animesvision.biz")
+        except:
+            pass # Timeout no título, tenta prosseguir se elementos existirem
+            
+        # Esperar elementos aparecerem
+        try:
+            wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, selector_str)))
+        except:
+            pass # Prossegue para diagnóstico se não achar
+            
+        time.sleep(2) # Respiro final para renderização
         cards = driver.find_elements(By.CSS_SELECTOR, selector_str)
+        
         found_count = 0
         for card in cards:
             title = card.text.strip()
@@ -43,7 +62,7 @@ def _patched_animesvision_search_anime(query: str) -> None:
                 found_count += 1
         
         if found_count == 0:
-            print(f"[AnimesVision] 0 resultados! Título: '{driver.title}', HTML fragment: {driver.page_source[:500]}...")
+            print(f"[AnimesVision] 0 resultados! Título: '{driver.title}', URL: {driver.current_url}, HTML fragment: {driver.page_source[:500]}...")
         else:
             print(f"[AnimesVision] Busca: {query} -> {found_count} resultados")
     except Exception as e:
