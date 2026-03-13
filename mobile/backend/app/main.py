@@ -311,6 +311,12 @@ def search_anime(q: str = Query(..., min_length=2, description="Anime query")) -
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"search failed: {exc}") from exc
 
+    print(f"[API] /search: query='{q}', {len(titles)} resultados encontrados")
+    if titles:
+        print(f"[API] Primeiros resultados: {titles[:5]}")
+    else:
+        print(f"[API] ⚠️  Nenhum resultado retornado!")
+
     return SearchResponse(query=q, titles=titles)
 
 
