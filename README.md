@@ -3,7 +3,7 @@
 
 # AnimeCaos
 
-**Hub de streaming desktop minimalista, rápido e autônomo para animes.**
+**App de streaming desktop minimalista, sem anúnciosm, rápido e autônomo para animes.**
 
 Centralize sua experiência de assistir anime em uma única aplicação, sem anúncios intrusivos e com busca inteligente entre múltiplas fontes.
 
