@@ -9,8 +9,8 @@ from animecaos.player.video_player import play_video
 
 from .menu import menu
 
-APP_NAME = "animecaos"
-LEGACY_APP_NAME = "ani-tupi"
+APP_NAME = "AnimeCaos"
+LEGACY_APP_NAME = "animecaos"
 
 
 def _history_dir(app_name: str) -> Path:

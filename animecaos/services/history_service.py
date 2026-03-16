@@ -6,8 +6,8 @@ from json import JSONDecodeError, dump, load
 from pathlib import Path
 
 
-APP_NAME = "animecaos"
-LEGACY_APP_NAME = "ani-tupi"
+APP_NAME = "AnimeCaos"
+LEGACY_APP_NAMES = ["animecaos"]
 
 
 @dataclass(frozen=True)
@@ -36,12 +36,13 @@ class HistoryService:
     def __init__(
         self,
         app_name: str = APP_NAME,
-        legacy_app_name: str | None = LEGACY_APP_NAME,
+        legacy_app_names: list[str] = LEGACY_APP_NAMES,
     ) -> None:
         self._history_file = _history_dir(app_name) / "history.json"
-        self._legacy_history_file = (
-            _history_dir(legacy_app_name) / "history.json" if legacy_app_name else None
-        )
+        
+        self._legacy_history_files = [
+            _history_dir(legacy) / "history.json" for legacy in legacy_app_names
+        ]
 
     def load_entries(self) -> list[HistoryEntry]:
         data = self._read_data()
@@ -83,8 +84,11 @@ class HistoryService:
     def _resolve_read_path(self) -> Path:
         if self._history_file.exists():
             return self._history_file
-        if self._legacy_history_file is not None:
-            return self._legacy_history_file
+        
+        for legacy_file in self._legacy_history_files:
+            if legacy_file.exists():
+                return legacy_file
+                
         return self._history_file
 
     def _read_data(self, ignore_errors: bool = False) -> dict:

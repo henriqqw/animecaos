@@ -25,7 +25,7 @@ const softwareJsonLd = {
     operatingSystem: "Windows",
     applicationCategory: "MultimediaApplication",
     softwareVersion: "0.1.0",
-    downloadUrl: "https://github.com/henriqqw/animecaos/releases/download/v0.1.0/AnimeCaos.v0.1.0.-.Official.Release.zip",
+    downloadUrl: "https://github.com/henriqqw/animecaos/releases/latest/download/Setup_Animecaos.exe",
     offers: { "@type": "Offer", price: "0", priceCurrency: "BRL" },
     description: "Hub de anime desktop open source. Player limpo, download offline, integracao AniList.",
     publisher: { "@type": "Organization", name: "caosdev", url: "https://caosdev.vercel.app" },

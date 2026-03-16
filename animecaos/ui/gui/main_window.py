@@ -30,7 +30,8 @@ from animecaos.services.anime_service import AnimeService
 from animecaos.services.history_service import HistoryEntry, HistoryService
 from animecaos.services.watchlist_service import WatchlistService
 from animecaos.services.anilist_service import AniListService
-from .workers import FunctionWorker, DownloadWorker
+from animecaos.services.updater_service import UpdaterService
+from .workers import FunctionWorker, DownloadWorker, UpdaterCheckWorker
 
 
 class MainWindow(QMainWindow):
@@ -52,8 +53,9 @@ class MainWindow(QMainWindow):
         self._current_anime: str | None = None
         self._episodes_anime: str | None = None
         self._current_episode_index = -1
+        self._updater_service = UpdaterService()
 
-        self.setWindowTitle("animecaos")
+        self.setWindowTitle(f"AnimeCaos v{self._updater_service.current_version}")
         
         try:
             base_path = sys._MEIPASS
@@ -70,6 +72,8 @@ class MainWindow(QMainWindow):
         self._reload_history()
         self._reload_watchlist()
         self._sync_controls()
+        
+        self._check_for_updates()
 
     def _build_ui(self) -> None:
         root = QWidget(self)
@@ -85,12 +89,40 @@ class MainWindow(QMainWindow):
         header_layout.setContentsMargins(16, 14, 16, 14)
         header_layout.setSpacing(12)
 
-        branding_layout = QVBoxLayout()
-        branding_layout.setSpacing(2)
+        branding_layout = QHBoxLayout()
+        branding_layout.setSpacing(8)
+        
+        try:
+            base_path = sys._MEIPASS
+        except AttributeError:
+            base_path = os.path.abspath(".")
+        icon_path = os.path.join(base_path, "icon.png")
+
+        from PySide6.QtGui import QPainter, QPainterPath
+        
+        logo = QLabel()
+        raw_pixmap = QPixmap(icon_path).scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        
+        logo_pixmap = QPixmap(raw_pixmap.size())
+        logo_pixmap.fill(Qt.GlobalColor.transparent)
+        
+        painter = QPainter(logo_pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        path = QPainterPath()
+        path.addRoundedRect(0, 0, raw_pixmap.width(), raw_pixmap.height(), 8, 8)
+        painter.setClipPath(path)
+        painter.drawPixmap(0, 0, raw_pixmap)
+        painter.end()
+        
+        logo.setPixmap(logo_pixmap)
+        branding_layout.addWidget(logo)
 
         title = QLabel('anime<span style="color: #D44242;">caos</span>')
         title.setObjectName("AppTitle")
+        
         branding_layout.addWidget(title)
+        branding_layout.addStretch(1)
+        
         header_layout.addLayout(branding_layout, 1)
 
         controls_layout = QHBoxLayout()
@@ -638,7 +670,7 @@ class MainWindow(QMainWindow):
         out_name = f"{safe_anime} - EP{episode_index + 1}.%(ext)s"
         
         import os
-        download_dir = os.path.join(os.path.expanduser("~"), "Downloads", "Animecaos")
+        download_dir = os.path.join(os.path.expanduser("~"), "Downloads", "AnimeCaos")
         os.makedirs(download_dir, exist_ok=True)
         out_template = os.path.join(download_dir, out_name)
 
@@ -655,7 +687,7 @@ class MainWindow(QMainWindow):
             self._set_status(f"Download: {line[:50].strip()}")
 
     def _on_download_success(self, path: str) -> None:
-        self._append_log(f"Download concluido salvo em: Downloads/Animecaos")
+        self._append_log(f"Download concluido salvo em: Downloads/AnimeCaos")
         self._set_status("Download finalizado com sucesso!")
         
     def _on_download_failed(self, error: str) -> None:
@@ -842,3 +874,53 @@ class MainWindow(QMainWindow):
                 self.favorite_button.setText("☆ Favoritar")
         else:
             self.favorite_button.setVisible(False)
+
+    def _check_for_updates(self) -> None:
+        worker = UpdaterCheckWorker(self._updater_service)
+        worker.signals.succeeded.connect(self._on_update_found)
+        self._thread_pool.start(worker)
+        
+    def _on_update_found(self, has_update: bool) -> None:
+        if not has_update:
+            return
+            
+        reply = QMessageBox.question(
+            self,
+            "Atualizacao Disponivel",
+            f"Uma nova versao (v{self._updater_service.latest_version}) do Animecaos foi encontrada!\n\n"
+            f"Deseja baixar e instalar agora?\n\nRelease Notes:\n{self._updater_service.release_notes}",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            self._start_update_download()
+
+    def _start_update_download(self) -> None:
+        self._set_busy(True, f"Baixando atualizacao (v{self._updater_service.latest_version})...")
+        self.progress_bar.setRange(0, 100)
+        
+        import threading
+        
+        def update_task():
+            def progress_callback(val):
+                if isinstance(val, int):
+                    # update progress bar via qt signal
+                    if val >= 0:
+                        self.progress_bar.setValue(val)
+                elif isinstance(val, str):
+                    self.status_label.setText(f"Atualizacao: {val}...")
+                    
+            success = self._updater_service.perform_update(callback_progress=progress_callback)
+            
+            if success:
+                self.status_label.setText("Atualizacao pronta! Reiniciando...")
+                import time
+                time.sleep(1)
+                self.close()
+            else:
+                self._set_busy(False)
+                self.status_label.setText("Falha ao baixar atualizacao.")
+                
+        # Fire and forget as this takes down the app on success
+        threading.Thread(target=update_task, daemon=True).start()

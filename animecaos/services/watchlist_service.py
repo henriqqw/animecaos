@@ -4,7 +4,8 @@ import os
 from json import JSONDecodeError, dump, load
 from pathlib import Path
 
-APP_NAME = "animecaos"
+APP_NAME = "AnimeCaos"
+LEGACY_APP_NAMES = ["animecaos"]
 
 
 def _watchlist_dir(app_name: str) -> Path:
@@ -19,8 +20,16 @@ def _watchlist_dir(app_name: str) -> Path:
 class WatchlistService:
     """Persistence service for favorited animes (watchlist)."""
 
-    def __init__(self, app_name: str = APP_NAME) -> None:
+    def __init__(
+        self,
+        app_name: str = APP_NAME,
+        legacy_app_names: list[str] = LEGACY_APP_NAMES,
+    ) -> None:
         self._watchlist_file = _watchlist_dir(app_name) / "watchlist.json"
+        
+        self._legacy_watchlist_files = [
+            _watchlist_dir(legacy) / "watchlist.json" for legacy in legacy_app_names
+        ]
 
     def load_watchlist(self) -> list[str]:
         data = self._read_data()
@@ -46,18 +55,25 @@ class WatchlistService:
 
         animes = set(self.load_watchlist())
         animes.discard(anime)
-
         self._save_data(list(animes))
 
     def is_favorited(self, anime: str) -> bool:
         return anime in self.load_watchlist()
 
     def _read_data(self, ignore_errors: bool = False) -> list[str]:
-        if not self._watchlist_file.exists():
+        target_file = self._watchlist_file
+        
+        if not target_file.exists():
+            for legacy_file in self._legacy_watchlist_files:
+                if legacy_file.exists():
+                    target_file = legacy_file
+                    break
+        
+        if not target_file.exists():
             return []
 
         try:
-            with self._watchlist_file.open("r", encoding="utf-8") as file:
+            with target_file.open("r", encoding="utf-8") as file:
                 data = load(file)
         except (PermissionError, JSONDecodeError):
             if ignore_errors:

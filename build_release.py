@@ -72,7 +72,7 @@ def run_pyinstaller():
         shutil.rmtree(BASE_DIR / "dist")
         
     cmd = [
-        "pyinstaller",
+        sys.executable, "-m", "PyInstaller",
         "--noconfirm",
         "--onedir",
         "--windowed", # Don't open a console window

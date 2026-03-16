@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 from animecaos.services.watchlist_service import _watchlist_dir
 
-APP_NAME = "animecaos"
+APP_NAME = "AnimeCaos"
 
 
 class AniListService:
@@ -85,6 +85,20 @@ class AniListService:
 
         cover_url = media.get("coverImage", {}).get("large")
         cover_path = None
+
+        if isinstance(cover_url, str):
+            import hashlib
+            url_hash = hashlib.md5(cover_url.encode()).hexdigest()
+            ext = cover_url.split(".")[-1] if "." in cover_url[-6:] else "jpg"
+            cover_path = self._cache_dir / f"{url_hash}.{ext}"
+
+            if not cover_path.exists():
+                try:
+                    img_resp = requests.get(cover_url, timeout=10)
+                    img_resp.raise_for_status()
+                    cover_path.write_bytes(img_resp.content)
+                except Exception:
+                    cover_path = None
 
         result = {
             "description": description,
