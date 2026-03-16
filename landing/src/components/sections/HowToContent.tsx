@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Download } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const DOWNLOAD_URL = "https://github.com/henriqqw/animecaos/releases/download/v0.1.0/AnimeCaos.v0.1.0.-.Official.Release.zip";
+const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
 
 export default function HowToContent() {
     const t = useTranslations("howto");

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Download, Github, Terminal, Monitor, Chrome, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/Animecaos.exe";
+const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
 
 const CHANGELOG = [
     "Painel de Controle com integração AniList (capas + sinopses PT-BR)",

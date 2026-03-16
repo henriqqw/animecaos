@@ -74,7 +74,7 @@ def run_pyinstaller():
     cmd = [
         sys.executable, "-m", "PyInstaller",
         "--noconfirm",
-        "--onedir",
+        "--onefile",
         "--windowed", # Don't open a console window
         "--icon=icon.ico",
         "--name=Animecaos",

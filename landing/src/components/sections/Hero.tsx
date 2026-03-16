@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Download, Github, ArrowRight, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/Animecaos.exe";
+const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
 const GITHUB_URL = "https://github.com/henriqqw/animecaos";
 
 const fadeUp: Variants = {
