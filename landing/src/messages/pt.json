@@ -7,14 +7,14 @@
     "contact": "Contato"
   },
   "hero": {
-    "badge": "Open Source • v0.1.0",
+    "badge": "Open Source • v0.1.1",
     "headline1": "Anime.",
     "headline2": "Sem anúncio.",
     "headline3": "Sem drama.",
     "sub": "O AnimeCaos busca, extrai e entrega os links direto da fonte — tudo em um player limpo, rápido e com suporte a download.",
     "cta_download": "Baixar para Windows",
     "cta_github": "Ver no GitHub",
-    "cta_version": "v0.1.0 — Última versão"
+    "cta_version": "v0.1.1 — Última versão"
   },
   "features": {
     "title": "Tudo que você precisa. Nada que você não precisa.",
@@ -60,7 +60,7 @@
     "title": "Pronto para começar?",
     "sub": "Um arquivo .zip direto. Sem dependências extras. Sem instalação.",
     "btn": "Baixar Arquivo .ZIP",
-    "version": "Versão v0.1.0",
+    "version": "Versão v0.1.1",
     "note": "Requer Windows 10/11 • ⚠️ OBRIGATÓRIO: Você precisa ter o navegador Mozilla Firefox instalado.",
     "source_title": "Instalar pelo source",
     "requirements": "Requisitos do Sistema",
