@@ -123,4 +123,9 @@ def build_stylesheet() -> str:
     QSplitter::handle {
         background-color: rgba(255, 255, 255, 0.08);
     }
+
+    QDialog#UpdateDialog {
+        background-color: #0B0C0F;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
     """

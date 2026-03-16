@@ -5,7 +5,7 @@ from typing import Callable
 import os
 import sys
 
-from PySide6.QtCore import Qt, QThreadPool
+from PySide6.QtCore import Qt, QThreadPool, Signal
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -24,6 +24,8 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
+    QDialog,
+    QTextBrowser,
 )
 
 from animecaos.services.anime_service import AnimeService
@@ -32,6 +34,123 @@ from animecaos.services.watchlist_service import WatchlistService
 from animecaos.services.anilist_service import AniListService
 from animecaos.services.updater_service import UpdaterService
 from .workers import FunctionWorker, DownloadWorker, UpdaterCheckWorker
+
+
+class UpdateDialog(QDialog):
+    def __init__(self, parent: QWidget, latest_version: str, release_notes: str) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("Atualização Disponível")
+        self.setFixedSize(500, 480)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setObjectName("UpdateDialog")
+        
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(20)
+        
+        # Header section
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(16)
+        
+        try:
+            base_path = sys._MEIPASS
+        except AttributeError:
+            base_path = os.path.abspath(".")
+        icon_path = os.path.join(base_path, "icon.png")
+        
+        icon_label = QLabel()
+        pixmap = QPixmap(icon_path).scaled(48, 48, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        icon_label.setPixmap(pixmap)
+        header_layout.addWidget(icon_label)
+        
+        title_layout = QVBoxLayout()
+        title_layout.setSpacing(2)
+        
+        title = QLabel("Nova versão disponível!")
+        title.setStyleSheet("font-size: 18px; font-weight: 700; color: #F2F3F5;")
+        
+        version_badge = QLabel(f"v{latest_version}")
+        version_badge.setStyleSheet("""
+            background-color: rgba(212, 66, 66, 0.2); 
+            color: #D44242; 
+            border: 1px solid rgba(212, 66, 66, 0.4);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 700;
+        """)
+        
+        badge_container = QHBoxLayout()
+        badge_container.addWidget(version_badge)
+        badge_container.addStretch()
+        
+        title_layout.addWidget(title)
+        title_layout.addLayout(badge_container)
+        header_layout.addLayout(title_layout)
+        
+        layout.addLayout(header_layout)
+        
+        # Release notes section
+        notes_title = QLabel("Notas da Versão:")
+        notes_title.setObjectName("MutedText")
+        notes_title.setStyleSheet("font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;")
+        layout.addWidget(notes_title)
+        
+        self.notes_browser = QTextBrowser()
+        self.notes_browser.setHtml(self._format_notes(release_notes))
+        self.notes_browser.setOpenExternalLinks(True)
+        self.notes_browser.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            color: #E6E7EA;
+            line-height: 1.5;
+        """)
+        layout.addWidget(self.notes_browser, 1)
+        
+        # Actions
+        actions_layout = QHBoxLayout()
+        actions_layout.setSpacing(12)
+        
+        self.btn_ignore = QPushButton("Lembrar depois")
+        self.btn_ignore.setFixedHeight(38)
+        self.btn_ignore.clicked.connect(self.reject)
+        
+        self.btn_update = QPushButton("Atualizar Agora")
+        self.btn_update.setObjectName("PrimaryButton")
+        self.btn_update.setFixedHeight(38)
+        self.btn_update.setCursor(Qt.PointingHandCursor)
+        self.btn_update.clicked.connect(self.accept)
+        
+        actions_layout.addWidget(self.btn_ignore, 1)
+        actions_layout.addWidget(self.btn_update, 2)
+        
+        layout.addLayout(actions_layout)
+
+    def _format_notes(self, notes: str) -> str:
+        # Simple markdown to html for common patterns found in the body
+        import re
+        html = notes
+        
+        # Headers
+        html = re.sub(r'^### (.*)$', r'<h3 style="color: #F2F3F5; margin-top: 10px; margin-bottom: 5px;">\1</h3>', html, flags=re.MULTILINE)
+        html = re.sub(r'^## (.*)$', r'<h2 style="color: #F2F3F5; margin-top: 12px; margin-bottom: 6px;">\1</h2>', html, flags=re.MULTILINE)
+        html = re.sub(r'^# (.*)$', r'<h1 style="color: #F2F3F5; margin-top: 14px; margin-bottom: 8px;">\1</h1>', html, flags=re.MULTILINE)
+        
+        # Bold
+        html = re.sub(r'\*\*(.*?)\*\*', r'<b style="color: #ffffff;">\1</b>', html)
+        
+        # Lists
+        html = re.sub(r'^- (.*)$', r'<li style="margin-left: 10px; margin-bottom: 3px;">\1</li>', html, flags=re.MULTILINE)
+        
+        # Images (remove or replace with link)
+        html = re.sub(r'<img .*?src="(.*?)".*?>', r'<br/><a href="\1" style="color: #D44242; text-decoration: none;">[Ver Screenshot]</a><br/>', html)
+        
+        # Cleanup extra newlines
+        html = html.replace('\n', '<br/>')
+        
+        return f'<div style="font-family: Segoe UI, sans-serif; font-size: 13px;">{html}</div>'
 
 
 class MainWindow(QMainWindow):
@@ -83,6 +202,9 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(root)
         main_layout.setContentsMargins(16, 16, 16, 16)
         main_layout.setSpacing(12)
+
+        self.status_label = QLabel("Pronto.")
+        self.status_label.setObjectName("MutedText")
 
         header = self._create_panel()
         header_layout = QHBoxLayout(header)
@@ -156,9 +278,12 @@ class MainWindow(QMainWindow):
         body_splitter.setStretchFactor(1, 44)
         body_splitter.setStretchFactor(2, 28)
 
-        self.status_label = QLabel("Pronto.")
-        self.status_label.setObjectName("MutedText")
         main_layout.addWidget(self.status_label)
+
+    # Update signals for thread-safe UI updates
+    update_progress_signal = Signal(int)
+    update_status_signal = Signal(str)
+    update_finished_signal = Signal()
 
     def _build_history_panel(self) -> QWidget:
         panel = self._create_panel()
@@ -347,6 +472,11 @@ class MainWindow(QMainWindow):
         self.log_output.setMaximumBlockCount(400)
         layout.addWidget(logs_title)
         layout.addWidget(self.log_output, 1)
+
+        # Connect update signals
+        self.update_progress_signal.connect(self.progress_bar.setValue)
+        self.update_status_signal.connect(self.status_label.setText)
+        self.update_finished_signal.connect(self.close)
 
         return panel
 
@@ -884,16 +1014,8 @@ class MainWindow(QMainWindow):
         if not has_update:
             return
             
-        reply = QMessageBox.question(
-            self,
-            "Atualizacao Disponivel",
-            f"Uma nova versao (v{self._updater_service.latest_version}) do Animecaos foi encontrada!\n\n"
-            f"Deseja baixar e instalar agora?\n\nRelease Notes:\n{self._updater_service.release_notes}",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.Yes
-        )
-        
-        if reply == QMessageBox.StandardButton.Yes:
+        dialog = UpdateDialog(self, self._updater_service.latest_version, self._updater_service.release_notes)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             self._start_update_download()
 
     def _start_update_download(self) -> None:
@@ -905,22 +1027,21 @@ class MainWindow(QMainWindow):
         def update_task():
             def progress_callback(val):
                 if isinstance(val, int):
-                    # update progress bar via qt signal
                     if val >= 0:
-                        self.progress_bar.setValue(val)
+                        self.update_progress_signal.emit(val)
                 elif isinstance(val, str):
-                    self.status_label.setText(f"Atualizacao: {val}...")
+                    self.update_status_signal.emit(f"Atualizacao: {val}...")
                     
             success = self._updater_service.perform_update(callback_progress=progress_callback)
             
             if success:
-                self.status_label.setText("Atualizacao pronta! Reiniciando...")
-                import time
-                time.sleep(1)
-                self.close()
+                self.update_status_signal.emit("Atualizacao pronta! Reiniciando...")
+                from PySide6.QtWidgets import QApplication
+                self.update_finished_signal.connect(QApplication.quit)
+                self.update_finished_signal.emit()
             else:
                 self._set_busy(False)
-                self.status_label.setText("Falha ao baixar atualizacao.")
+                self.update_status_signal.emit("Falha ao baixar atualizacao.")
                 
         # Fire and forget as this takes down the app on success
         threading.Thread(target=update_task, daemon=True).start()
