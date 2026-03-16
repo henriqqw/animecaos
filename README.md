@@ -1,7 +1,7 @@
 <div align="center">
   <img src="icon.png" alt="AnimeCaos Logo" width="128"/>
 
-# animecaos
+# AnimeCaos
 
 **Hub de streaming desktop minimalista, rápido e autônomo para animes.**
 
