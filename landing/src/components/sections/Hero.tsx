@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Download, Github, ArrowRight, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
+const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.2/AnimeCaos_v0.1.2.exe";
 const GITHUB_URL = "https://github.com/henriqqw/animecaos";
 
 const fadeUp: Variants = {
@@ -204,7 +204,7 @@ export default function Hero({ locale }: HeroProps) {
                                 className="code-block"
                                 style={{ textAlign: "left", background: "rgba(0,0,0,0.6)", borderRadius: 10 }}
                             >
-                                <div><span className="comment"># AnimeCaos v0.1.0</span></div>
+                                <div><span className="comment"># AnimeCaos v0.1.2</span></div>
                                 <div><span className="cmd">→</span> Pesquisando: <strong style={{ color: "#e2c08d" }}>attack on titan</strong></div>
                                 <div style={{ marginTop: "0.3rem", color: "#58a6ff" }}>✓ 3 fontes verificadas em 1.2s</div>
                                 <div style={{ color: "#3fb950" }}>✓ Capa AniList carregada</div>

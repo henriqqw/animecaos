@@ -8,7 +8,7 @@ import { Menu, X, Download, Github } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const GITHUB = "https://github.com/henriqqw/animecaos";
-const DOWNLOAD = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
+const DOWNLOAD = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.2/AnimeCaos_v0.1.2.exe";
 
 interface NavbarProps {
     locale: string;
@@ -340,7 +340,7 @@ export default function Navbar({ locale }: NavbarProps) {
                                     style={{ justifyContent: "center" }}
                                 >
                                     <Download size={16} />
-                                    Download v0.1.0
+                                    Download v0.1.2
                                 </a>
                             </div>
                         </motion.div>

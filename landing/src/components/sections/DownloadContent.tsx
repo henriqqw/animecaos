@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Download, Github, Terminal, Monitor, Chrome, Package } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.1/AnimeCaos.v0.1.1.exe";
+const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.2/AnimeCaos_v0.1.2.exe";
 
 const CHANGELOG = [
     "Painel de Controle com integração AniList (capas + sinopses PT-BR)",
@@ -81,7 +81,7 @@ export default function DownloadContent() {
                         {/* Changelog */}
                         <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1.25rem" }}>
                             <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-subtle)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.75rem" }}>
-                                v0.1.1 changelog
+                                v0.1.2 changelog
                             </p>
                             <ul style={{ display: "flex", flexDirection: "column", gap: "0.5rem", listStyle: "none" }}>
                                 {CHANGELOG.map((item, i) => (
