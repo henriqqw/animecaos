@@ -50,7 +50,7 @@ const websiteJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt">
+    <html lang="pt" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
