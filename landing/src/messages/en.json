@@ -58,8 +58,8 @@
     },
     "download": {
         "title": "Ready to start?",
-        "sub": "A simple .zip file. No extra dependencies. No installation.",
-        "btn": "Download .ZIP Archive",
+        "sub": "A direct .exe file. Requires Mozilla Firefox.",
+        "btn": "Download .EXE File",
         "version": "Version v0.1.2",
         "note": "Requires Windows 10/11 • ⚠️ MANDATORY: Mozilla Firefox must be installed on your system.",
         "source_title": "Install from source",
@@ -86,7 +86,7 @@
             {
                 "num": "01",
                 "title": "Download AnimeCaos",
-                "desc": "Download the .zip, extract it and run the executable. ⚠️ Firefox must be installed on your PC."
+                "desc": "Download the .exe and run it. ⚠️ Firefox must be installed on your PC."
             },
             {
                 "num": "02",

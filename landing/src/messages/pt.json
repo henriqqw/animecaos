@@ -58,8 +58,8 @@
   },
   "download": {
     "title": "Pronto para começar?",
-    "sub": "Um arquivo .zip direto. Sem dependências extras. Sem instalação.",
-    "btn": "Baixar Arquivo .ZIP",
+    "sub": "Um arquivo .exe direto. Requer Mozilla Firefox.",
+    "btn": "Baixar Arquivo .EXE",
     "version": "Versão v0.1.2",
     "note": "Requer Windows 10/11 • ⚠️ OBRIGATÓRIO: Você precisa ter o navegador Mozilla Firefox instalado.",
     "source_title": "Instalar pelo source",
@@ -86,7 +86,7 @@
       {
         "num": "01",
         "title": "Baixe o AnimeCaos",
-        "desc": "Baixe o .zip, extraia e abra o executável. ⚠️ É obrigatório ter o Firefox instalado no PC."
+        "desc": "Baixe o .exe e abra o executável. ⚠️ É obrigatório ter o Firefox instalado no PC."
       },
       {
         "num": "02",

@@ -780,6 +780,27 @@ h6 {
   }
 }
 
+.cta-note {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: rgba(240, 242, 245, 0.74);
+  background: linear-gradient(180deg, rgba(230, 63, 63, 0.13) 0%, rgba(230, 63, 63, 0.08) 100%);
+  border: 1px solid rgba(230, 63, 63, 0.28);
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  max-width: min(92%, 760px);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+@media (max-width: 640px) {
+  .cta-note {
+    border-radius: 12px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.78rem;
+  }
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

@@ -101,7 +101,7 @@ export default function DownloadCTA() {
                         </a>
                     </div>
 
-                    <p style={{ fontSize: "0.78rem", color: "var(--text-subtle)" }}>
+                    <p className="cta-note">
                         {t("note")}
                     </p>
                 </motion.div>

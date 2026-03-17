@@ -1,24 +1,65 @@
-"use client";
+﻿"use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Download, Github, Terminal, Monitor, Chrome, Package } from "lucide-react";
+import { Download, Github, Terminal, Monitor, Package, Check, Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.2/AnimeCaos_v0.1.2.exe";
 
 const CHANGELOG = [
     "Painel de Controle com integração AniList (capas + sinopses PT-BR)",
-    "Watchlist (Favoritos) salva em watchlist.json local",
     "Download nativo via yt-dlp com progresso em tempo real",
     "Auto-Play: avança automaticamente para o próximo episódio",
     "Interface Glassmorphism com PySide6",
 ];
 
-const REQ_ICONS = [Monitor, Chrome, Terminal, Package];
+const SOURCE_COMMANDS = `# Clone e instale
+git clone https://github.com/henriqqw/animecaos.git
+cd animecaos
+python -m venv venv
+venv\\Scripts\\activate
+pip install -r requirements.txt
+python main.py`;
+
+function FirefoxGlyph({ size = 14 }: { size?: number }) {
+    return (
+        <svg
+            aria-hidden="true"
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            fill="none"
+            style={{ display: "block", flexShrink: 0 }}
+        >
+            <circle cx="12" cy="12" r="8.8" stroke="currentColor" strokeWidth="1.7" />
+            <path
+                d="M17.5 6.6c-1.3-1.1-3.1-1.8-5-1.8-4.1 0-7.5 3.3-7.5 7.4 0 1.5.4 2.8 1.1 4 .4-2.2 2.3-4 4.8-4.3 1.7-.2 3.2.3 4.3 1.2-.7-.1-1.3 0-1.9.2-1.5.4-2.5 1.9-2.2 3.5.2 1.1 1 2.1 2.2 2.7 3.4-.3 6.1-3.1 6.1-6.6 0-1.5-.5-2.9-1.2-4.1-.2-.3-.4-.6-.7-.8z"
+                fill="currentColor"
+                opacity="0.85"
+            />
+            <path
+                d="M16.4 5.4c1 .2 1.9.8 2.6 1.7.4.5.6 1 .8 1.6-.9-.7-2.2-1.1-3.6-.9.3-.5.4-1 .2-1.5z"
+                fill="currentColor"
+            />
+        </svg>
+    );
+}
 
 export default function DownloadContent() {
     const t = useTranslations("download");
     const reqItems = t.raw("req_items") as string[];
+    const [copied, setCopied] = useState(false);
+
+    const handleCopySource = async () => {
+        try {
+            await navigator.clipboard.writeText(SOURCE_COMMANDS);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1800);
+        } catch {
+            setCopied(false);
+        }
+    };
 
     return (
         <div style={{ position: "relative", zIndex: 1, paddingTop: "8rem", paddingBottom: "6rem" }}>
@@ -86,7 +127,9 @@ export default function DownloadContent() {
                             <ul style={{ display: "flex", flexDirection: "column", gap: "0.5rem", listStyle: "none" }}>
                                 {CHANGELOG.map((item, i) => (
                                     <li key={i} style={{ display: "flex", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)" }}>
-                                        <span style={{ color: "var(--accent)", flexShrink: 0 }}>✓</span>
+                                        <span style={{ color: "var(--accent)", flexShrink: 0, display: "inline-flex", alignItems: "center" }}>
+                                            <Check size={14} />
+                                        </span>
                                         {item}
                                     </li>
                                 ))}
@@ -106,11 +149,11 @@ export default function DownloadContent() {
                             <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem" }}>{t("requirements")}</h3>
                             <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
                                 {reqItems.map((req, i) => {
-                                    const Icon = REQ_ICONS[i] ?? Package;
+                                    const Icon = i === 0 ? Monitor : i === 2 ? Terminal : Package;
                                     return (
                                         <div key={i} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                                             <div className="feature-icon" style={{ width: 32, height: 32, margin: 0, flexShrink: 0 }}>
-                                                <Icon size={14} />
+                                                {i === 1 ? <FirefoxGlyph size={14} /> : <Icon size={14} />}
                                             </div>
                                             <p style={{ fontSize: "0.875rem", color: "var(--text-muted)" }}>{req}</p>
                                         </div>
@@ -127,7 +170,18 @@ export default function DownloadContent() {
                             className="glass"
                             style={{ padding: "1.75rem", borderRadius: "var(--radius-lg)" }}
                         >
-                            <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem" }}>{t("source_title")}</h3>
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.8rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+                                <h3 style={{ fontSize: "1rem", fontWeight: 700 }}>{t("source_title")}</h3>
+                                <button
+                                    type="button"
+                                    onClick={handleCopySource}
+                                    className="btn btn-ghost"
+                                    style={{ fontSize: "0.8rem", padding: "0.45rem 0.8rem" }}
+                                >
+                                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                                    {copied ? "Copiado!" : "Copiar comandos"}
+                                </button>
+                            </div>
                             <div className="code-block">
                                 <div><span className="comment"># Clone e instale</span></div>
                                 <div><span className="cmd">git</span> clone https://github.com/henriqqw/animecaos.git</div>
