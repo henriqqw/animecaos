@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import json
@@ -8,6 +9,8 @@ import shutil
 import subprocess
 from pathlib import Path
 from animecaos import __version__
+
+log = logging.getLogger(__name__)
 
 
 class UpdaterService:
@@ -53,7 +56,7 @@ class UpdaterService:
                 
                 return self._is_newer_version(self.latest_version, self.current_version)
         except Exception as e:
-            print(f"Erro ao checar atualizacoes: {e}")
+            log.warning("Erro ao checar atualizacoes: %s", e)
             return False
 
     def _is_newer_version(self, latest: str, current: str) -> bool:
@@ -165,6 +168,6 @@ class UpdaterService:
             return True
             
         except Exception as e:
-            print(f"Erro efetuando update: {e}")
+            log.error("Erro efetuando update: %s", e)
             if callback_progress: callback_progress(-1)
             return False

@@ -20,6 +20,14 @@ REQUEST_TIMEOUT_SECONDS = 15
 HEADERS = {"User-Agent": "Mozilla/5.0 (animecaos)"}
 
 
+def _is_video_url(url: str) -> bool:
+    """Check if URL looks like a direct video file (not an HTML page)."""
+    if not url:
+        return False
+    lower = url.split("?")[0].lower()
+    return lower.endswith((".mp4", ".m3u8", ".webm", ".mkv", ".ts"))
+
+
 def _slugify_query(query: str) -> str:
     ascii_query = unicodedata.normalize("NFKD", query).encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-zA-Z0-9]+", "-", ascii_query).strip("-")
@@ -91,25 +99,58 @@ class AnimeFire(PluginInterface):
         try:
             driver.get(url_episode)
 
+            # 1) Try direct <video> element on the page
             try:
                 video = WebDriverWait(driver, 10).until(
                     EC.visibility_of_element_located((By.ID, "my-video_html5_api"))
                 )
                 src = video.get_property("src") or video.get_attribute("src")
-                if src:
+                if src and _is_video_url(src):
                     return src
             except TimeoutException:
                 pass
 
+            # 2) Try iframe — navigate inside to extract the real video URL
             try:
                 iframe = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, "iframe[src]"))
                 )
-                src = iframe.get_property("src") or iframe.get_attribute("src")
-                if src:
-                    if "blogger.com/video.g" in src:
+                iframe_src = iframe.get_property("src") or iframe.get_attribute("src")
+                if iframe_src:
+                    if "blogger.com/video.g" in iframe_src:
                         raise RuntimeError("Hospedagem de video nao disponivel para este episodio.")
-                    return src
+
+                    # If the iframe src itself is a direct video URL, use it
+                    if _is_video_url(iframe_src):
+                        return iframe_src
+
+                    # Otherwise, navigate inside the iframe and look for <video>
+                    driver.switch_to.frame(iframe)
+                    try:
+                        inner_video = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.TAG_NAME, "video"))
+                        )
+                        inner_src = (
+                            inner_video.get_property("src")
+                            or inner_video.get_attribute("src")
+                        )
+                        if inner_src and _is_video_url(inner_src):
+                            return inner_src
+
+                        # Check <source> children
+                        source = inner_video.find_elements(By.TAG_NAME, "source")
+                        for s in source:
+                            s_src = s.get_property("src") or s.get_attribute("src")
+                            if s_src and _is_video_url(s_src):
+                                return s_src
+                    except TimeoutException:
+                        pass
+                    finally:
+                        driver.switch_to.default_content()
+
+                    # Last resort: return iframe src and let mpv/yt-dlp try
+                    return iframe_src
+
             except TimeoutException as exc:
                 raise RuntimeError("Iframe/video nao encontrado no AnimeFire.") from exc
 

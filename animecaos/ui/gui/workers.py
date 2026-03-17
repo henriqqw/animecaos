@@ -64,8 +64,18 @@ class DownloadWorker(QRunnable):
             if __import__("os").name == "nt":
                 flags = subprocess.CREATE_NO_WINDOW
                 
+            from urllib.parse import urlparse
+            parsed = urlparse(self._url)
+            referer = f"{parsed.scheme}://{parsed.netloc}/"
+
             self._process = subprocess.Popen(
-                [get_bin_path("yt-dlp"), "-o", self._output_template, self._url],
+                [
+                    get_bin_path("yt-dlp"),
+                    "-o", self._output_template,
+                    "--referer", referer,
+                    "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    self._url,
+                ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,

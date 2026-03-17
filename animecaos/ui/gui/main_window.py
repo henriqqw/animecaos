@@ -510,6 +510,7 @@ class MainWindow(QMainWindow):
         self._search_view.show_searching(query)
         self._navigate_to_search()
 
+        self._append_log(f"Busca iniciada: \"{query}\"")
         self._set_status(f"Buscando '{query}'...")
         self._run_task(
             status_message=f"Buscando '{query}'...",
@@ -527,7 +528,7 @@ class MainWindow(QMainWindow):
 
         if not titles:
             self._set_status("Nenhum anime encontrado.")
-            self._append_log("Busca sem resultados.")
+            self._append_log(f"Busca por \"{self._last_search_query}\" sem resultados.")
             self._search_view.set_results([], self._last_search_query)
             return
 
@@ -535,7 +536,7 @@ class MainWindow(QMainWindow):
         self._search_view.set_results(cards, self._last_search_query)
 
         self._set_status(f"{len(titles)} animes encontrados.")
-        self._append_log(f"Busca concluida com {len(titles)} resultado(s).")
+        self._append_log(f"Busca por \"{self._last_search_query}\" concluida — {len(titles)} resultado(s) encontrado(s).")
 
         for t in titles:
             if t not in self._cover_cache:
@@ -593,17 +594,19 @@ class MainWindow(QMainWindow):
 
         if not self._episode_titles:
             self._set_status("Nenhum episodio encontrado.")
-            self._append_log(f"Nenhum episodio encontrado para '{anime}'.")
+            self._append_log(f"Nenhum episodio encontrado para \"{anime}\".")
             return
 
         self._set_status(f"{len(self._episode_titles)} episodios carregados.")
-        self._append_log(f"Episodios de '{anime}' carregados.")
+        self._append_log(f"Episodios de \"{anime}\" carregados — {len(self._episode_titles)} episodio(s).")
 
     def _on_episode_play_clicked(self, index: int) -> None:
         anime = self._current_anime or self._detail_view.anime_name
         if not anime:
             return
         self._current_episode_index = index
+
+        self._append_log(f"Resolvendo player: \"{anime}\" Ep {index + 1}...")
 
         # Show overlay popup
         self._play_overlay.show_loading(anime, index)
@@ -670,11 +673,11 @@ class MainWindow(QMainWindow):
             self._reload_history(silent=True)
 
         self._set_status(f"Episodio {episode_index + 1} finalizado.")
-        self._append_log(f"Reproducao concluida: '{anime}' episodio {episode_index + 1}.")
+        self._append_log(f"Reproducao finalizada: \"{anime}\" Ep {episode_index + 1}.")
 
         if payload.get("eof") and self._mini_player.is_autoplay():
             if episode_index + 1 < len(self._episode_titles):
-                self._append_log("Auto-Play: iniciando o proximo episodio...")
+                self._append_log(f"Auto-play: avancando para Ep {episode_index + 2}...")
                 self._on_next_clicked()
 
     def _on_previous_clicked(self) -> None:
@@ -728,7 +731,7 @@ class MainWindow(QMainWindow):
         worker.signals.progress.connect(self._on_download_progress)
         worker.signals.succeeded.connect(self._on_download_success)
         worker.signals.failed.connect(self._on_download_failed)
-        self._append_log(f"Iniciando download de '{anime}' Ep {episode_index + 1}...")
+        self._append_log(f"Download iniciado: \"{anime}\" Ep {episode_index + 1} -> {download_dir}")
         self._thread_pool.start(worker)
 
     def _on_download_progress(self, line: str) -> None:
@@ -740,20 +743,20 @@ class MainWindow(QMainWindow):
         self._active_download_worker = None
         download_dir = getattr(self, "_current_download_dir", "")
         self._download_overlay.show_done(download_dir)
-        self._append_log(f"Download concluido salvo em: {download_dir}")
+        self._append_log(f"Download concluido — salvo em: {download_dir}")
         self._set_status("Download finalizado com sucesso!")
 
     def _on_download_failed(self, error: str) -> None:
         self._active_download_worker = None
         self._download_overlay.show_error(error)
-        self._append_log(f"Falha no download: {error}")
+        self._append_log(f"Download falhou: {error}")
         self._set_status("Erro no download.")
 
     def _on_download_cancel(self) -> None:
         if self._active_download_worker:
             self._active_download_worker.cancel()
             self._active_download_worker = None
-            self._append_log("Download cancelado pelo usuario.")
+            self._append_log("Download cancelado.")
             self._set_status("Download cancelado.")
 
     # ── HISTORY ──────────────────────────────────────────────────
@@ -817,7 +820,7 @@ class MainWindow(QMainWindow):
         self._fetch_metadata(entry.anime)
 
         self._set_status("Historico aplicado. Clique para continuar.")
-        self._append_log(f"Historico carregado para '{entry.anime}' no episodio {safe_index + 1}.")
+        self._append_log(f"Historico restaurado: \"{entry.anime}\" Ep {safe_index + 1} — {len(self._episode_titles)} episodio(s) disponiveis.")
 
     # ── METADATA ─────────────────────────────────────────────────
 
@@ -891,7 +894,7 @@ class MainWindow(QMainWindow):
     def _on_task_failed(self, error_text: str) -> None:
         self._play_overlay.dismiss()
         self._download_overlay.dismiss()
-        self._append_log(f"Erro: {error_text}")
+        self._append_log(f"Erro: {error_text.splitlines()[0] if error_text else 'Erro desconhecido'}")
         self._set_status("Falha na operacao.")
         summary = error_text.splitlines()[0] if error_text else "Erro inesperado."
         QMessageBox.critical(self, "Erro", summary)

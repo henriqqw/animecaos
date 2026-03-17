@@ -1,9 +1,12 @@
+import logging
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from os import cpu_count
 from fuzzywuzzy import fuzz
 
 from .loader import PluginInterface
+
+log = logging.getLogger(__name__)
 
 
 def _max_workers() -> int:
@@ -52,7 +55,7 @@ class Repository:
                 try:
                     future.result()
                 except Exception as exc:
-                    print(f"Aviso: falha ao buscar anime em uma fonte: {exc}")
+                    log.warning("Fonte falhou na busca de anime: %s", exc)
 
     def _normalize_title(self, title: str) -> str:
         normalized = title.lower()
@@ -105,7 +108,7 @@ class Repository:
                 try:
                     future.result()
                 except Exception as exc:
-                    print(f"Aviso: falha ao buscar episodios em uma fonte: {exc}")
+                    log.warning("Fonte falhou na busca de episodios: %s", exc)
 
     def add_episode_list(self, anime: str, title_list: list[str], url_list: list[str], source: str) -> None:
         if not title_list or not url_list:

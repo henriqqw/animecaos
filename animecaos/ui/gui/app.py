@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import sys
 
 from PySide6.QtCore import QTimer
@@ -23,6 +24,12 @@ if sys.platform == "win32":
 
 
 def run_gui(debug: bool = False) -> int:
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.WARNING,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
     app = QApplication.instance() or QApplication(sys.argv)
     app.setStyle("Fusion")
     app.setStyleSheet(build_stylesheet())

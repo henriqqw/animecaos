@@ -1,7 +1,9 @@
 import importlib
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
+log = logging.getLogger(__name__)
 
 AVAILABLE_PLUGINS: tuple[str, ...] = ("hinatasoul", "betteranime", "animesonlinecc", "animefire", "animesvision")
 
@@ -30,4 +32,4 @@ def load_plugins(languages: set[str], plugins: Sequence[str] | None = None) -> N
             plugin_module = importlib.import_module(f"animecaos.plugins.{plugin_name}")
             plugin_module.load(languages)
         except Exception as exc:
-            print(f"Aviso: plugin '{plugin_name}' nao carregado: {exc}")
+            log.warning("Plugin '%s' nao carregado: %s", plugin_name, exc)
