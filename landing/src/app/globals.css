@@ -361,6 +361,161 @@ h6 {
   }
 }
 
+/* CTA Shapes */
+#download-cta .liquid-glass > *:not(.cta-shapes) {
+  position: relative;
+  z-index: 2;
+}
+
+.cta-shapes {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cta-logo {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.45));
+  opacity: 0.48;
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+.cta-logo img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.cta-logo-l1 {
+  left: 3.5%;
+  top: 10%;
+  width: clamp(58px, 6.4vw, 96px);
+  animation: cta-float-1 8.6s ease-in-out infinite;
+  z-index: 2;
+}
+
+.cta-logo-l2 {
+  left: 12.5%;
+  top: 24%;
+  width: clamp(50px, 5.2vw, 78px);
+  animation: cta-float-2 10.2s ease-in-out infinite;
+}
+
+.cta-logo-l3 {
+  left: 4%;
+  top: 40%;
+  width: clamp(66px, 7.2vw, 110px);
+  animation: cta-float-3 9.2s ease-in-out infinite;
+  z-index: 2;
+}
+
+.cta-logo-l4 {
+  left: 13.2%;
+  top: 57%;
+  width: clamp(52px, 5.4vw, 82px);
+  animation: cta-float-1 11s ease-in-out infinite reverse;
+}
+
+.cta-logo-l5 {
+  left: 3.8%;
+  top: 74%;
+  width: clamp(60px, 6.3vw, 98px);
+  animation: cta-float-2 9.8s ease-in-out infinite;
+  z-index: 2;
+}
+
+.cta-logo-r1 {
+  right: 3.5%;
+  top: 10%;
+  width: clamp(58px, 6.4vw, 96px);
+  animation: cta-float-2 9.4s ease-in-out infinite;
+  z-index: 2;
+}
+
+.cta-logo-r2 {
+  right: 12.5%;
+  top: 24%;
+  width: clamp(50px, 5.2vw, 78px);
+  animation: cta-float-1 10.6s ease-in-out infinite;
+}
+
+.cta-logo-r3 {
+  right: 4%;
+  top: 40%;
+  width: clamp(66px, 7.2vw, 110px);
+  animation: cta-float-3 8.8s ease-in-out infinite;
+  z-index: 2;
+}
+
+.cta-logo-r4 {
+  right: 13.2%;
+  top: 57%;
+  width: clamp(52px, 5.4vw, 82px);
+  animation: cta-float-2 11.4s ease-in-out infinite reverse;
+}
+
+.cta-logo-r5 {
+  right: 3.8%;
+  top: 74%;
+  width: clamp(60px, 6.3vw, 98px);
+  animation: cta-float-1 10.4s ease-in-out infinite;
+  z-index: 2;
+}
+
+/* Depth of field: smaller logos softly blurred, bigger logos crisp */
+.cta-logo-l2,
+.cta-logo-l4,
+.cta-logo-l5,
+.cta-logo-r2,
+.cta-logo-r4,
+.cta-logo-r5 {
+  filter: blur(1.1px) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.42));
+  opacity: 0.44;
+}
+
+.cta-logo-l1,
+.cta-logo-l3,
+.cta-logo-r1,
+.cta-logo-r3 {
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.46));
+  opacity: 0.6;
+}
+
+@keyframes cta-float-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-6deg); }
+  50% { transform: translate3d(-8px, -11px, 0) rotate(4deg); }
+}
+
+@keyframes cta-float-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(5deg); }
+  50% { transform: translate3d(10px, 9px, 0) rotate(14deg); }
+}
+
+@keyframes cta-float-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-12deg); }
+  50% { transform: translate3d(9px, -10px, 0) rotate(-3deg); }
+}
+
+@media (max-width: 900px) {
+  .cta-logo {
+    opacity: 0.34;
+  }
+
+  .cta-logo-l2,
+  .cta-logo-l4,
+  .cta-logo-l5,
+  .cta-logo-r2,
+  .cta-logo-r4,
+  .cta-logo-r5 {
+    display: none;
+  }
+}
+
 /* ─── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;

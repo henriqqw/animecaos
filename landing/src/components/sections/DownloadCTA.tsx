@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Download, Github, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -20,6 +21,8 @@ export default function DownloadCTA() {
                     transition={{ duration: 0.6 }}
                     className="liquid-glass"
                     style={{
+                        position: "relative",
+                        overflow: "visible",
                         padding: "clamp(2rem, 5vw, 4rem)",
                         textAlign: "center",
                         display: "flex",
@@ -28,6 +31,40 @@ export default function DownloadCTA() {
                         gap: "1.5rem",
                     }}
                 >
+                    <div className="cta-shapes" aria-hidden="true">
+                        <span className="cta-logo cta-logo-l1">
+                            <Image src="/icon1.webp" alt="" width={70} height={70} />
+                        </span>
+                        <span className="cta-logo cta-logo-l2">
+                            <Image src="/icon1.webp" alt="" width={54} height={54} />
+                        </span>
+                        <span className="cta-logo cta-logo-l3">
+                            <Image src="/icon1.webp" alt="" width={86} height={86} />
+                        </span>
+                        <span className="cta-logo cta-logo-l4">
+                            <Image src="/icon1.webp" alt="" width={62} height={62} />
+                        </span>
+                        <span className="cta-logo cta-logo-l5">
+                            <Image src="/icon1.webp" alt="" width={72} height={72} />
+                        </span>
+
+                        <span className="cta-logo cta-logo-r1">
+                            <Image src="/icon1.webp" alt="" width={76} height={76} />
+                        </span>
+                        <span className="cta-logo cta-logo-r2">
+                            <Image src="/icon1.webp" alt="" width={58} height={58} />
+                        </span>
+                        <span className="cta-logo cta-logo-r3">
+                            <Image src="/icon1.webp" alt="" width={92} height={92} />
+                        </span>
+                        <span className="cta-logo cta-logo-r4">
+                            <Image src="/icon1.webp" alt="" width={64} height={64} />
+                        </span>
+                        <span className="cta-logo cta-logo-r5">
+                            <Image src="/icon1.webp" alt="" width={72} height={72} />
+                        </span>
+                    </div>
+
                     <div className="badge">
                         <Download size={11} />
                         {t("version")}

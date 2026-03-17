@@ -4,35 +4,62 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
-function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
+type CountParts = {
+    prefix: string;
+    end: number;
+    suffix: string;
+};
+
+const parseCountValue = (raw: string): CountParts | null => {
+    const match = raw.trim().match(/^([^0-9]*)(\d+)([^0-9]*)$/);
+    if (!match) return null;
+    return {
+        prefix: match[1] ?? "",
+        end: Number(match[2]),
+        suffix: match[3] ?? "",
+    };
+};
+
+function CountUp({ end, prefix = "", suffix = "" }: { end: number; prefix?: string; suffix?: string }) {
     const [count, setCount] = useState(0);
     const ref = useRef<HTMLSpanElement>(null);
     const inView = useInView(ref, { once: true });
 
     useEffect(() => {
         if (!inView) return;
-        let start = 0;
-        const duration = 1200;
-        const step = duration / end;
-        const timer = setInterval(() => {
-            start += 1;
-            setCount(start);
-            if (start >= end) clearInterval(timer);
-        }, step);
-        return () => clearInterval(timer);
+        if (end <= 0) {
+            setCount(0);
+            return;
+        }
+
+        const duration = 2100;
+        let frame = 0;
+        const startAt = performance.now();
+
+        const animate = (now: number) => {
+            const progress = Math.min((now - startAt) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.round(end * eased));
+            if (progress < 1) {
+                frame = requestAnimationFrame(animate);
+            }
+        };
+
+        frame = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(frame);
     }, [inView, end]);
 
-    return <span ref={ref}>{count}{suffix}</span>;
+    return <span ref={ref}>{prefix}{count}{suffix}</span>;
 }
 
 export default function Stats() {
     const t = useTranslations("stats");
 
-    const items: Array<{ label: string; value: string; numeric: boolean; num?: number }> = [
-        { label: t("sources"), value: t("sources_val"), numeric: false },
-        { label: t("zero_ads"), value: t("zero_ads_val"), numeric: false },
-        { label: t("size"), value: t("size_val"), numeric: false },
-        { label: t("open_source"), value: t("open_source_val"), numeric: false },
+    const items: Array<{ label: string; value: string }> = [
+        { label: t("sources"), value: t("sources_val") },
+        { label: t("zero_ads"), value: t("zero_ads_val") },
+        { label: t("size"), value: t("size_val") },
+        { label: t("open_source"), value: t("open_source_val") },
     ];
 
     return (
@@ -65,7 +92,17 @@ export default function Stats() {
                                     marginBottom: "0.4rem",
                                 }}
                             >
-                                {item.numeric ? <CountUp end={item.num!} /> : item.value}
+                                {(() => {
+                                    const parsed = parseCountValue(item.value);
+                                    if (!parsed) return item.value;
+                                    return (
+                                        <CountUp
+                                            end={parsed.end}
+                                            prefix={parsed.prefix}
+                                            suffix={parsed.suffix}
+                                        />
+                                    );
+                                })()}
                             </div>
                             <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
                                 {item.label}
