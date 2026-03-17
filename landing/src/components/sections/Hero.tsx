@@ -5,6 +5,7 @@ import { motion, Variants } from "framer-motion";
 import Link from "next/link";
 import { Download, Github, ArrowRight, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
+import VariableProximity from "@/components/ui/VariableProximity";
 
 const DOWNLOAD_URL = "https://github.com/henriqqw/AnimeCaos/releases/download/v0.1.2/AnimeCaos_v0.1.2.exe";
 const GITHUB_URL = "https://github.com/henriqqw/animecaos";
@@ -46,6 +47,7 @@ export default function Hero({ locale }: HeroProps) {
     const [showCursor, setShowCursor] = useState(true);
     const [terminalWindowVisible, setTerminalWindowVisible] = useState(true);
     const [terminalWindowMinimized, setTerminalWindowMinimized] = useState(false);
+    const variableProximityContainerRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const cursorTimer = setInterval(() => {
@@ -279,10 +281,9 @@ export default function Hero({ locale }: HeroProps) {
         };
     }, []);
 
-    const words1 = t("headline1").split(" ");
-    const words2 = t("headline2").split(" ");
-    const words3 = t("headline3").split(" ");
-    const allWords = [...words1.map(w => ({ w, idx: 0 })), ...words2.map(w => ({ w, idx: 1 })), ...words3.map(w => ({ w, idx: 2 }))];
+    const headline1 = t("headline1");
+    const headline2 = t("headline2");
+    const headline3 = t("headline3");
 
     return (
         <section
@@ -410,27 +411,48 @@ export default function Hero({ locale }: HeroProps) {
                         animate="visible"
                         custom={0.1}
                         style={{
-                            display: "flex",
-                            flexWrap: "wrap",
-                            justifyContent: "center",
-                            gap: "0 0.3em",
                             textShadow: "0 10px 30px rgba(0,0,0,0.55)",
+                            lineHeight: 1.02,
                         }}
                     >
-                        {allWords.map(({ w, idx }, i) => (
-                            <motion.span
-                                key={i}
-                                style={{
-                                    color: idx === 1 ? "#ff4d4d" : "#f8fbff",
-                                    display: "inline-block",
-                                }}
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.2 + i * 0.06, ease: [0.4, 0, 0.2, 1] }}
-                            >
-                                {w}
-                            </motion.span>
-                        ))}
+                        <div
+                            ref={variableProximityContainerRef}
+                            style={{
+                                position: "relative",
+                                display: "inline-flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                gap: "0.02em",
+                            }}
+                        >
+                            <VariableProximity
+                                label={headline1}
+                                className="hero-variable-line hero-variable-line-main"
+                                fromFontVariationSettings="'wght' 760, 'opsz' 20"
+                                toFontVariationSettings="'wght' 980, 'opsz' 48"
+                                containerRef={variableProximityContainerRef}
+                                radius={120}
+                                falloff="linear"
+                            />
+                            <VariableProximity
+                                label={headline2}
+                                className="hero-variable-line hero-variable-line-accent"
+                                fromFontVariationSettings="'wght' 760, 'opsz' 20"
+                                toFontVariationSettings="'wght' 1000, 'opsz' 52"
+                                containerRef={variableProximityContainerRef}
+                                radius={120}
+                                falloff="linear"
+                            />
+                            <VariableProximity
+                                label={headline3}
+                                className="hero-variable-line hero-variable-line-main"
+                                fromFontVariationSettings="'wght' 760, 'opsz' 20"
+                                toFontVariationSettings="'wght' 980, 'opsz' 48"
+                                containerRef={variableProximityContainerRef}
+                                radius={120}
+                                falloff="linear"
+                            />
+                        </div>
                     </motion.h1>
 
                     {/* Sub */}
